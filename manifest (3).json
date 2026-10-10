@@ -1,0 +1,13 @@
+{
+  "background_color": "#c500ff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "senuka",
+  "orientation": "any",
+  "scope": "/Senuka/",
+  "short_name": "lottery shop",
+  "start_url": "/Senuka/",
+  "theme_color": "#c600ff",
+  "id": "senukavithum67-ship-it.github",
+  "description": "good"
+}
