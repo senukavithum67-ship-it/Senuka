@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>scaning lottery shop</title>
+    <!-- html2canvas library for downloading modal as an image -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #ff007f, #7928ca, #4338ca, #06b6d4);
+            --header-gradient: linear-gradient(90deg, #ff007f, #ff4d4d, #facc15, #10b981, #3b82f6, #ec4899);
+            --accent-color: #3b82f6;
+            --row-name-color: #0f172a;
+            --total-color: #dc2626;
+            --grid-border-color: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top left, #fce7f3, #e0e7ff, #dbeafe, #f3e8ff);
+            padding: 24px;
+            color: #0f172a;
+            min-height: 100vh;
+        }
+
+        /* Animated Title Header */
+        .header {
+            text-align: center;
+            background: var(--primary-gradient);
+            background-size: 300% 300%;
+            animation: gradientShift 8s ease infinite;
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 30px rgba(121, 40, 202, 0.35);
+        }
+
+        .header h1 {
+            font-size: 3.4rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 900;
+            background: var(--header-gradient);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+            outline: none;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            margin-top: 8px;
+            outline: none;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-weight: 600;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-bill {
+            background: linear-gradient(135deg, #059669, #10b981);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-bill:hover {
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e11d48, #f43f5e);
+            box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 8px 20px rgba(225, 29, 72, 0.5);
+        }
+
+        .table-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+            overflow-x: auto;
+        }
+
+        /* Table & Fat Grid Lines */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 1500px;
+            border: 3.5px solid var(--grid-border-color);
+        }
+
+        th, td {
+            border: 3px solid var(--grid-border-color);
+            text-align: center;
+            padding: 8px 4px;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+
+        th {
+            background-color: #f1f5f9;
+        }
+
+        /* Rotated Header Styles */
+        .th-code {
+            height: 100px;
+            vertical-align: bottom;
+            padding-bottom: 12px;
+            background: linear-gradient(180deg, #bae6fd, #e0f2fe);
+        }
+
+        .rotated-text {
+            display: inline-block;
+            transform: rotate(-45deg);
+            white-space: nowrap;
+            width: 40px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #0369a1;
+            outline: none;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.9);
+        }
+
+        .th-name {
+            font-size: 2.3rem;
+            color: #be185d;
+            font-weight: 900;
+            text-align: left;
+            padding-left: 14px;
+            background: linear-gradient(135deg, #fecdd3, #ffe4e6);
+            outline: none;
+        }
+
+        .th-total {
+            color: #991b1b;
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fca5a5, #fecdd3);
+        }
+
+        .th-action {
+            color: #475569;
+            font-size: 1.1rem;
+            font-weight: 900;
+            background-color: #e2e8f0;
+        }
+
+        .seller-name {
+            color: #1e3a8a;
+            font-weight: 900;
+            text-align: left;
+            padding-left: 14px;
+            font-size: 1.35rem;
+            outline: none;
+            min-width: 180px;
+            background: linear-gradient(90deg, #dbeafe, #eff6ff);
+        }
+
+        /* Vivid Colorful Pastel Columns */
+        td.col-bg-0  { background-color: #dbeafe; }
+        td.col-bg-1  { background-color: #dcfce7; }
+        td.col-bg-2  { background-color: #fef9c3; }
+        td.col-bg-3  { background-color: #f3e8ff; }
+        td.col-bg-4  { background-color: #ffe4e6; }
+        td.col-bg-5  { background-color: #ccfbf1; }
+        td.col-bg-6  { background-color: #ffedd5; }
+        td.col-bg-7  { background-color: #cffafe; }
+        td.col-bg-8  { background-color: #e0e7ff; }
+        td.col-bg-9  { background-color: #fce7f3; }
+        td.col-bg-10 { background-color: #d1fae5; }
+        td.col-bg-11 { background-color: #fef3c7; }
+        td.col-bg-12 { background-color: #f1f5f9; }
+        td.col-bg-13 { background-color: #ede9fe; }
+        td.col-bg-14 { background-color: #fee2e2; }
+        td.col-bg-15 { background-color: #ecfccb; }
+        td.col-bg-16 { background-color: #e0f2fe; }
+
+        tbody tr:hover td {
+            filter: brightness(0.93);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            border: none;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #0f172a;
+            background: transparent;
+            outline: none;
+            padding: 8px 0;
+            border-radius: 6px;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"]:focus {
+            background-color: #facc15 !important;
+            box-shadow: inset 0 0 0 3px #854d0e, 0 0 10px rgba(250, 204, 21, 0.8);
+            transform: scale(1.05);
+        }
+
+        .row-total {
+            color: #991b1b;
+            font-weight: 900;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, #fecdd3, #fee2e2) !important;
+        }
+
+        .pramanaya-row {
+            background-color: #fbcfe8 !important;
+            font-weight: 900;
+        }
+
+        .pramanaya-title {
+            color: #be185d;
+            font-style: italic;
+            font-weight: 900;
+            text-align: left;
+            padding-left: 14px;
+            font-size: 1.4rem;
+            outline: none;
+            background: linear-gradient(90deg, #f472b6, #fbcfe8) !important;
+        }
+
+        .pramanaya-val {
+            color: #9d174d;
+            font-weight: 900;
+            font-size: 1.3rem;
+            background-color: #fce7f3 !important;
+        }
+
+        .total-row {
+            background-color: #fca5a5 !important;
+            font-weight: 900;
+        }
+
+        .total-row-title {
+            color: #7f1d1d;
+            font-weight: 900;
+            text-align: left;
+            padding-left: 14px;
+            font-size: 1.6rem;
+            background: linear-gradient(90deg, #f87171, #fca5a5) !important;
+        }
+
+        .vertical-col-total {
+            color: #991b1b;
+            font-size: 1.4rem;
+            font-weight: 900;
+            background-color: #fee2e2 !important;
+        }
+
+        .grand-total {
+            color: #ffffff;
+            font-size: 1.7rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .btn-clear-row {
+            background: linear-gradient(135deg, #fecdd3, #ffe4e6);
+            color: #e11d48;
+            border: 2px solid #fda4af;
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(225, 29, 72, 0.2);
+        }
+
+        .btn-clear-row:hover {
+            background: #e11d48;
+            color: white;
+            border-color: #be123c;
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        /* BILL MODAL SCREENSHOT FRIENDLY POPUP */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 95%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 4px solid #3b82f6;
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-header {
+            text-align: center;
+            border-bottom: 3px dashed #cbd5e1;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h2 {
+            font-size: 2rem;
+            color: #1e3a8a;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-header p {
+            font-size: 0.95rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* Multi-column Grid layout so everything fits without scrolling */
+        .bill-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0f172a;
+            padding: 8px 12px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .bill-item-code {
+            color: #1d4ed8;
+        }
+
+        .bill-item-count {
+            color: #0f172a;
+        }
+
+        .bill-total-box {
+            margin-top: 10px;
+            padding-top: 12px;
+            border-top: 3px dashed #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fef2f2;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #fca5a5;
+        }
+
+        .bill-total-label {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #dc2626;
+        }
+
+        .bill-total-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #dc2626;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-modal-close {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .btn-modal-copy {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-modal-download {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 contenteditable="true">scaning lottery shop</h1>
+        <p contenteditable="true">Interactive Lottery Distribution & Calculation Sheet</p>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="addRow()">+ Add New Seller</button>
+        <button class="btn btn-bill" onclick="openBillModal()">🧾 Get Bill</button>
+        <button class="btn" onclick="addColumn()">+ Add Lottery Code</button>
+        <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+    </div>
+
+    <div class="table-container">
+        <table id="lotteryTable">
+            <thead>
+                <tr id="headerRow">
+                    <th class="th-name" contenteditable="true">NAME</th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">GS</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">MS</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">MG</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">HD</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">DN</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">NI</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">ADS</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">SD</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">Wasi</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">LG</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">SB</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">SF</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">ADK</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">KP</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">SDS</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">SS</span></th>
+                    <th class="th-code"><span class="rotated-text" contenteditable="true">JS</span></th>
+                    <th class="th-total">TOTAL</th>
+                    <th class="th-action">CLEAR</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr class="pramanaya-row">
+                    <td class="pramanaya-title" contenteditable="true">ප්‍රමාණය</td>
+                    <td class="pramanaya-val">800</td>
+                    <td class="pramanaya-val">1200</td>
+                    <td class="pramanaya-val">700</td>
+                    <td class="pramanaya-val">650</td>
+                    <td class="pramanaya-val">500</td>
+                    <td class="pramanaya-val">400</td>
+                    <td class="pramanaya-val">500</td>
+                    <td class="pramanaya-val">600</td>
+                    <td class="pramanaya-val">800</td>
+                    <td class="pramanaya-val">1400</td>
+                    <td class="pramanaya-val">700</td>
+                    <td class="pramanaya-val">700</td>
+                    <td class="pramanaya-val">700</td>
+                    <td class="pramanaya-val">1100</td>
+                    <td class="pramanaya-val">200</td>
+                    <td class="pramanaya-val">160</td>
+                    <td class="pramanaya-val">400</td>
+                    <td class="row-total" style="color: #dc2626;">11510</td>
+                    <td style="background-color: #fbcfe8;">-</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr id="footerRow" class="total-row">
+                    <td class="total-row-title">TOTAL</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- BILL POPUP MODAL -->
+    <div class="modal-overlay" id="billModal">
+        <div class="modal-card" id="billCard">
+            <div class="modal-header">
+                <h2>LOTTERY BILL SUMMARY</h2>
+                <p>Shop Distribution Bill</p>
+            </div>
+            <div class="bill-list" id="billList">
+                <!-- Dynamically populated bill items in multi-column grid -->
+            </div>
+            <div class="bill-total-box">
+                <span class="bill-total-label">TOTAL =</span>
+                <span class="bill-total-value" id="billGrandTotal">0</span>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal-copy" onclick="copyBillText()">📋 Copy</button>
+                <button class="btn-modal-download" onclick="downloadBillImage()">📥 Download</button>
+                <button class="btn-modal-close" onclick="closeBillModal()">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const initialData = [
+            { name: "ප්‍රදීප්", values: [60, 80, 50, 50, 40, 30, 20, 40, 50, 100, 50, 50, 70, 80, 20, 20, 20] },
+            { name: "දයානන්ද", values: [40, 50, 30, 30, 20, 20, 30, 20, 30, 70, 30, 40, 40, 50, 10, 10, 20] },
+            { name: "ලක්සිරි", values: [30, 40, 20, 20, 20, 10, 10, 10, 20, 40, 20, 20, 30, 30, 10, 10, 10] },
+            { name: "සිරිමල්", values: [40, 60, 30, 30, 20, 20, 40, 20, 30, 90, 30, 30, 30, 50, 20, 20, 20] },
+            { name: "චාමර", values: [10, 20, 10, 10, 10, 5, 5, 10, 10, 30, 20, 20, 20, 30, 10, 5, 5] },
+            { name: "නදීකා", values: [40, 50, 20, 20, 20, 20, 20, 20, 30, 60, 20, 30, 30, 40, 10, 10, 20] },
+            { name: "ලාල්", values: [60, 70, 40, 40, 20, 20, 20, 30, 60, 80, 40, 40, 40, 60, 10, 10, 20] },
+            { name: "තිලකරත්න", values: [30, 40, 20, 30, 20, 10, 20, 20, 30, 50, 30, 30, 40, 50, 10, 0, 20] },
+            { name: "අමුගොඩ", values: [10, 10, 10, 10, 10, 0, 5, 10, 10, 30, 10, 10, 10, 15, 5, 0, 5] },
+            { name: "H1", values: [5, 10, 5, 5, 0, 5, 20, 0, 10, 10, 5, 0, 5, 10, 5, 5, 10] },
+            { name: "අම්බන", values: [10, 10, 10, 10, 10, 10, 20, 10, 10, 10, 10, 10, 10, 10, 0, 10, 10] },
+            { name: "පිටුවල", values: [5, 10, 5, 5, 5, 0, 10, 5, 0, 10, 5, 5, 10, 5, 0, 0, 5] },
+            { name: "චතුරංග", values: [10, 20, 10, 10, 10, 0, 5, 10, 10, 20, 10, 10, 10, 20, 0, 0, 5] },
+            { name: "S", values: [15, 20, 10, 10, 10, 5, 10, 10, 10, 20, 10, 10, 10, 20, 5, 5, 10] },
+            { name: "මාදෙමත්ත", values: [5, 10, 5, 5, 5, 0, 10, 10, 10, 10, 5, 5, 5, 10, 0, 5, 10] },
+            { name: "සුදුමාමා", values: [30, 30, 20, 20, 20, 10, 0, 10, 20, 30, 30, 30, 30, 40, 0, 0, 0] },
+            { name: "වික්‍රම", values: [5, 10, 5, 5, 5, 5, 0, 5, 5, 10, 5, 5, 5, 0, 0, 0, 0] },
+            { name: "උපුල්", values: [110, 110, 100, 150, 60, 90, 100, 100, 200, 230, 80, 80, 120, 230, 40, 40, 60] },
+            { name: "R", values: [140, 170, 100, 100, 100, 50, 120, 80, 120, 250, 130, 130, 150, 250, 40, 30, 0] }
+        ];
+
+        const tableBody = document.getElementById('tableBody');
+        const headerRow = document.getElementById('headerRow');
+        const footerRow = document.getElementById('footerRow');
+
+        function initTable() {
+            const pramanayaRow = tableBody.querySelector('.pramanaya-row');
+            tableBody.innerHTML = '';
+            if (pramanayaRow) {
+                tableBody.appendChild(pramanayaRow);
+            }
+
+            initialData.forEach(item => {
+                createSellerRow(item.name, item.values);
+            });
+            updateFooterRow();
+            calculateTotals();
+            attachEnterNavigation();
+        }
+
+        function createSellerRow(sellerName = "අලුත් වෙළෙන්දා", values = []) {
+            const colCount = headerRow.children.length - 3;
+            const tr = document.createElement('tr');
+            
+            let rowHTML = `<td class="seller-name" contenteditable="true">${sellerName}</td>`;
+            for (let i = 0; i < colCount; i++) {
+                const val = values[i] !== undefined ? values[i] : '';
+                const bgClass = `col-bg-${i % 17}`;
+                rowHTML += `<td class="${bgClass}"><input type="number" value="${val}" oninput="calculateTotals()"></td>`;
+            }
+            rowHTML += `<td class="row-total">0</td>`;
+            rowHTML += `<td style="background-color: #f1f5f9;"><button class="btn-clear-row" onclick="clearRow(this)" title="Clear seller row">🗑️</button></td>`;
+            
+            tr.innerHTML = rowHTML;
+            tableBody.appendChild(tr);
+        }
+
+        function clearRow(btn) {
+            const row = btn.closest('tr');
+            const inputs = row.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.value = '');
+            calculateTotals();
+        }
+
+        function updateFooterRow() {
+            const colCount = headerRow.children.length - 3;
+            let footerHTML = `<td class="total-row-title">TOTAL</td>`;
+            
+            for (let i = 0; i < colCount; i++) {
+                footerHTML += `<td class="vertical-col-total">0</td>`;
+            }
+            footerHTML += `<td class="grand-total" id="grandTotal">0</td>`;
+            footerHTML += `<td style="background-color: #fca5a5;">-</td>`;
+            
+            footerRow.innerHTML = footerHTML;
+        }
+
+        function calculateTotals() {
+            const rows = tableBody.querySelectorAll('tr');
+            const colCount = headerRow.children.length - 3;
+            const columnSums = new Array(colCount).fill(0);
+            let totalSum = 0;
+
+            rows.forEach(row => {
+                if (row.classList.contains('pramanaya-row')) return;
+
+                const inputs = row.querySelectorAll('input[type="number"]');
+                let rowSum = 0;
+
+                inputs.forEach((input, colIndex) => {
+                    const val = parseFloat(input.value) || 0;
+                    rowSum += val;
+                    if (colIndex < colCount) {
+                        columnSums[colIndex] += val;
+                    }
+                });
+
+                const rowTotalCell = row.querySelector('.row-total');
+                if (rowTotalCell) {
+                    rowTotalCell.textContent = rowSum ? rowSum : '0';
+                }
+
+                totalSum += rowSum;
+            });
+
+            const verticalColTotalCells = footerRow.querySelectorAll('.vertical-col-total');
+            verticalColTotalCells.forEach((cell, index) => {
+                cell.textContent = columnSums[index] ? columnSums[index] : '0';
+            });
+
+            const grandTotalCell = document.getElementById('grandTotal');
+            if (grandTotalCell) {
+                grandTotalCell.textContent = totalSum ? totalSum : '0';
+            }
+        }
+
+        function attachEnterNavigation() {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type === 'number') {
+                    e.preventDefault();
+                    const allInputs = Array.from(document.querySelectorAll('input[type="number"]'));
+                    const currentIndex = allInputs.indexOf(e.target);
+                    
+                    if (currentIndex !== -1 && currentIndex + 1 < allInputs.length) {
+                        const nextInput = allInputs[currentIndex + 1];
+                        nextInput.focus();
+                        nextInput.select();
+                    }
+                }
+            });
+        }
+
+        function addRow() {
+            createSellerRow("අලුත් වෙළෙන්දා");
+            calculateTotals();
+        }
+
+        function addColumn() {
+            const totalTh = headerRow.children[headerRow.children.length - 2];
+            const newTh = document.createElement('th');
+            newTh.className = "th-code";
+            newTh.innerHTML = `<span class="rotated-text" contenteditable="true">NEW</span>`;
+            headerRow.insertBefore(newTh, totalTh);
+
+            const pramanayaRow = tableBody.querySelector('.pramanaya-row');
+            if (pramanayaRow) {
+                const pramanayaTotalCell = pramanayaRow.children[pramanayaRow.children.length - 2];
+                const newTd = document.createElement('td');
+                newTd.className = "pramanaya-val";
+                newTd.textContent = "0";
+                pramanayaRow.insertBefore(newTd, pramanayaTotalCell);
+            }
+
+            const colCount = headerRow.children.length - 3;
+            const newColBgClass = `col-bg-${(colCount - 1) % 17}`;
+
+            const rows = tableBody.querySelectorAll('tr:not(.pramanaya-row)');
+            rows.forEach(row => {
+                const lastTotalTd = row.children[row.children.length - 2];
+                const newTd = document.createElement('td');
+                newTd.className = newColBgClass;
+                newTd.innerHTML = `<input type="number" oninput="calculateTotals()">`;
+                row.insertBefore(newTd, lastTotalTd);
+            });
+
+            updateFooterRow();
+            calculateTotals();
+        }
+
+        function clearAllData() {
+            if (confirm("Are you sure you want to clear all input numbers?")) {
+                const inputs = document.querySelectorAll('input[type="number"]');
+                inputs.forEach(input => input.value = '');
+                calculateTotals();
+            }
+        }
+
+        /* GET BILL MODAL & IMAGE DOWNLOAD FUNCTIONS */
+        let compiledBillText = "";
+
+        function openBillModal() {
+            calculateTotals();
+            const billList = document.getElementById('billList');
+            billList.innerHTML = '';
+
+            const colHeaders = headerRow.querySelectorAll('.th-code .rotated-text');
+            const colTotals = footerRow.querySelectorAll('.vertical-col-total');
+            const grandTotal = document.getElementById('grandTotal').textContent;
+
+            compiledBillText = "";
+
+            colHeaders.forEach((thSpan, index) => {
+                const codeName = thSpan.textContent.trim();
+                const countVal = colTotals[index] ? colTotals[index].textContent.trim() : '0';
+
+                compiledBillText += `${codeName} = ${countVal}\n`;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bill-item';
+                itemDiv.innerHTML = `
+                    <span class="bill-item-code">${codeName}</span>
+                    <span class="bill-item-count">= ${countVal}</span>
+                `;
+                billList.appendChild(itemDiv);
+            });
+
+            document.getElementById('billGrandTotal').textContent = grandTotal;
+            compiledBillText += `\nTOTAL = ${grandTotal}`;
+
+            document.getElementById('billModal').style.display = 'flex';
+        }
+
+        function closeBillModal() {
+            document.getElementById('billModal').style.display = 'none';
+        }
+
+        function copyBillText() {
+            navigator.clipboard.writeText(compiledBillText).then(() => {
+                alert("Bill text copied to clipboard!");
+            });
+        }
+
+        function downloadBillImage() {
+            const card = document.getElementById('billCard');
+            const actions = card.querySelector('.modal-actions');
+            actions.style.display = 'none';
+
+            html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
+                actions.style.display = 'flex';
+                const link = document.createElement('a');
+                link.download = 'lottery-bill-summary.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                actions.style.display = 'flex';
+                alert("Failed to download image.");
+            });
+        }
+
+        window.onload = initTable;
+    </script>
+</body>
+</html>
